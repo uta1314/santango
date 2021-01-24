@@ -1,0 +1,37 @@
+.message {
+    color: rgb(255, 21, 21);
+    line-height: 1.2;
+    padding: 0 50px;
+    margin-bottom: 40px;
+}
+.form {
+    text-align: left;
+    padding: 0 30px;
+}
+.form label {
+    margin-left: 5px;
+}
+.form input {
+    font-size: 2rem;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+.form input:nth-of-type(2) {
+    margin-bottom: 0;
+}
+.form input[type=submit] {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    width: 200px;
+    height: 50px;
+    padding: 0;
+    margin: 80px auto 100px;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+}
