@@ -31,6 +31,9 @@
     $message_array = [];
     $message = [];
     $name = null;
+    $url = null;
+    $xml = null;
+    $words = [];
     $now_date = null;
     $db = null;
     $sql = null;
@@ -40,6 +43,98 @@
     // セションのnameが空ではなかった場合
     if(!empty($_SESSION['name'])) {
         $name = e($_SESSION['name']);
+    } else {
+    // ログインしていない場合
+        // ログインページへリダイレクト
+        header('Location: ../login/');
+    }
+
+    try {
+        $db = getDb();
+        $sql = 'SELECT date FROM words GROUP BY date';
+        $stmt = $db->query($sql);
+        // 日付がデータベースに存在する場合
+        if($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // 24時間が経過していた場合
+            if(strtotime($row['date'] . '+1 day') <= strtotime('now')) {
+                // ランダムにWikipediaから3つの記事を取得
+                $url = 'http://ja.wikipedia.org/w/api.php?format=xml&action=query&list=random&rnnamespace=0&rnlimit=3';
+
+                // XMLエラーを有効にする
+                libxml_use_internal_errors(true);
+
+                // 応答読み込み
+                $xml = @simplexml_load_file($url);
+
+                // Wikipedia API接続失敗
+                if(count(libxml_get_errors()) > 0) {
+                    $error_message[] = '単語を取得できませんでした。';
+                } else if(isset($xml->query->random->page)) {
+                // 検索結果あり
+                    $i = 1;
+                    foreach($xml->query->random->page as $page) {
+                        // 単語、日付を更新
+                        $sql = 'UPDATE words SET word = ?, date = ? WHERE id = ?';
+                        $stmt = $db->prepare($sql);
+                        $stmt->bindValue(1, $page['title']);
+                        $stmt->bindValue(2, date('Y-m-d'));
+                        $stmt->bindValue(3, $i);
+                        $stmt->execute();
+                        $i++;
+                    }
+                } else {
+                // 検索結果なし
+                    $error_message[] = '単語が見つかりませんでした。';
+                }
+            }
+        } else {
+        // 単語がデータベースに存在しない場合
+            // ランダムにWikipediaから3つの記事を取得
+            $url = 'http://ja.wikipedia.org/w/api.php?format=xml&action=query&list=random&rnnamespace=0&rnlimit=3';
+
+            // XMLエラーを有効にする
+            libxml_use_internal_errors(true);
+
+            // 応答読み込み
+            $xml = @simplexml_load_file($url);
+
+            // Wikipedia API接続失敗
+            if(count(libxml_get_errors()) > 0) {
+                $error_message[] = '単語を取得できませんでした。';
+            } else if(isset($xml->query->random->page)) {
+            // 検索結果あり
+                $i = 1;
+                foreach($xml->query->random->page as $page) {
+                    // idと単語、日付を追加
+                    $sql = 'INSERT INTO words (id, word, date) VALUES (?, ?, ?)';
+                    $stmt = $db->prepare($sql);
+                    $stmt->bindValue(1, $i);
+                    $stmt->bindValue(2, $page['title']);
+                    $stmt->bindValue(3, date('Y-m-d'));
+                    $stmt->execute();
+                    $i++;
+                }
+            } else {
+            // 検索結果なし
+                $error_message[] = '単語が見つかりませんでした。';
+            }
+        }
+    } catch (PDOException $e) {
+        $error_message[] = '接続に失敗しました。';
+        $error_message[] = $e->getMessage();
+    }
+
+    // データベースから3つの単語を取得
+    try {
+        $db = getDb();
+        $sql = 'SELECT word FROM words';
+        $stmt = $db->query($sql);
+        while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $words[] = $row['word'];
+        }
+    } catch (PDOException $e) {
+        $error_message[] = '接続に失敗しました。';
+        $error_message[] = $e->getMessage();
     }
 
     // データが送信されたかを確認
@@ -112,6 +207,12 @@
 </head>
 <body>
     <h2 class="sub-title">3単語</h2>
+    <!-- 単語の表示 -->
+    <ul class="words">
+        <?php foreach($words as $word): ?>
+        <li class="word"><?php echo $word ?></li>
+        <?php endforeach;?>
+    </ul>
     <div class="container">
         <!-- 投稿が成功した場合 -->
         <?php if(empty($_POST['board']) && !empty($_SESSION['success_message'])): ?>

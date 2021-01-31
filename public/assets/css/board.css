@@ -1,6 +1,32 @@
 .container {
     text-align: left;
 }
+.words {
+    display: inline-block;
+    text-align: left;
+    padding: 20px 15px;
+    margin: 0 auto 50px;
+    border-radius: 10px;
+}
+.word {
+    font-size: 3rem;
+    padding-right: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgb(184, 182, 182);
+}
+.word::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    background-color: rgb(184, 182, 182);
+    transform: rotate(45deg);
+}
+.word:nth-of-type(3) {
+    margin-bottom: 0;
+}
 .name {
     display: inline-block;
     font-size: 2.5rem;
