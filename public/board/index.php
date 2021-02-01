@@ -33,6 +33,7 @@
     $name = null;
     $url = null;
     $xml = null;
+    $theme = null;
     $words = [];
     $now_date = null;
     $db = null;
@@ -71,13 +72,21 @@
                     $error_message[] = '単語を取得できませんでした。';
                 } else if(isset($xml->query->random->page)) {
                 // 検索結果あり
+                    // すべてのflagをFALSEにする
+                    $sql = 'UPDATE themes SET flag=FALSE';
+                    $stmt = $db->query($sql);
+                    // 1~最大idまでのあいだでランダムに値を生成し、その値と一致するレコードのflagをTRUEにする
+                    $sql = ' UPDATE themes AS t INNER JOIN (SELECT (FLOOR(RAND() * (SELECT MAX(id) FROM themes)) + 1) AS id) AS tmp ON t.id = tmp.id SET t.flag=TRUE';
+                    $stmt = $db->query($sql);
+
                     $i = 1;
+                    $today = date('Y-m-d');
                     foreach($xml->query->random->page as $page) {
                         // 単語、日付を更新
                         $sql = 'UPDATE words SET word = ?, date = ? WHERE id = ?';
                         $stmt = $db->prepare($sql);
                         $stmt->bindValue(1, $page['title']);
-                        $stmt->bindValue(2, date('Y-m-d'));
+                        $stmt->bindValue(2, $today);
                         $stmt->bindValue(3, $i);
                         $stmt->execute();
                         $i++;
@@ -103,14 +112,22 @@
                 $error_message[] = '単語を取得できませんでした。';
             } else if(isset($xml->query->random->page)) {
             // 検索結果あり
+                // すべてのflagをFALSEにする
+                $sql = 'UPDATE themes SET flag=FALSE';
+                $stmt = $db->query($sql);
+                // 1~最大idまでのあいだでランダムに値を生成し、その値と一致するレコードのflagをTRUEにする
+                $sql = ' UPDATE themes AS t INNER JOIN (SELECT (FLOOR(RAND() * (SELECT MAX(id) FROM themes)) + 1) AS id) AS tmp ON t.id = tmp.id SET t.flag=TRUE';
+                $stmt = $db->query($sql);
+
                 $i = 1;
+                $today = date('Y-m-d');
                 foreach($xml->query->random->page as $page) {
                     // idと単語、日付を追加
                     $sql = 'INSERT INTO words (id, word, date) VALUES (?, ?, ?)';
                     $stmt = $db->prepare($sql);
                     $stmt->bindValue(1, $i);
                     $stmt->bindValue(2, $page['title']);
-                    $stmt->bindValue(3, date('Y-m-d'));
+                    $stmt->bindValue(3, $today);
                     $stmt->execute();
                     $i++;
                 }
@@ -124,9 +141,15 @@
         $error_message[] = $e->getMessage();
     }
 
-    // データベースから3つの単語を取得
     try {
         $db = getDb();
+        // flagがTRUEのレコードを取得
+        $sql = 'SELECT theme FROM themes WHERE flag=TRUE';
+        $stmt = $db->query($sql);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $theme = $row['theme'];
+
+        // データベースから3つの単語を取得
         $sql = 'SELECT word FROM words';
         $stmt = $db->query($sql);
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -199,14 +222,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3単語</title>
+    <title>投稿画面</title>
     <!-- cssへのリンク -->
     <link rel="stylesheet" type="text/css" href="../assets/css/reset.css">
     <link rel="stylesheet" type="text/css" href="../assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="../assets/css/board.css">
 </head>
 <body>
-    <h2 class="sub-title">3単語</h2>
+    <h2 class="sub-title">今日のお題</h2>
+    <!-- お題の表示 -->
+    <p class="theme"><?php echo $theme ?></p>
     <!-- 単語の表示 -->
     <ul class="words">
         <?php foreach($words as $word): ?>
