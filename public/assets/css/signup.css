@@ -41,3 +41,15 @@
 .link.login {
     margin-left: 40px;
 }
+/* スマートフォン */
+@media screen and (max-width: 480px) {
+    .form input {
+        margin-top: 5px;
+    }
+    .form input[type=submit] {
+        font-size: 1.8rem;
+        width: 150px;
+        height: 40px;
+        margin: 50px auto 50px;
+    }
+}

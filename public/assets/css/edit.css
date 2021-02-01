@@ -75,3 +75,13 @@
 .error-message {
     color: rgb(255, 21, 21);
 }
+/* スマートフォン */
+@media screen and (max-width: 480px) {
+    .name {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    .button-box {
+        margin-top: 10px;
+    }
+}

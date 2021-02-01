@@ -1,8 +1,11 @@
 .description {
     text-align: left;
     max-width: 600px;
-    padding: 0 50px 60px;
-    margin: 0 auto;
+    color: #fff;
+    border: 8px solid #4B3001;
+    background-color: rgb(41, 105, 35);
+    padding: 20px 50px;
+    margin: 0 auto 50px;
 }
 .description p {
     font-size: 2.2rem;
@@ -10,4 +13,14 @@
 }
 .link.login {
     margin-top: 30px;
+}
+/* スマートフォン */
+@media screen and (max-width: 480px) {
+    .description {
+        max-width: 400px;
+        padding: 10px 20px;
+    }
+    .link.login {
+        margin-top: 20px;
+    }
 }
