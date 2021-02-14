@@ -1,8 +1,8 @@
 <?php
 function getDb() {
-    $dsn = 'mysql:dbname=randomwords; host=127.0.0.1; charset=utf8';
-    $usr = 'yuta';
-    $passwd = 'kiseki';
+    $dsn = 'mysql:dbname=webfantasy_santango; host=157.112.187.125; charset=utf8';
+    $usr = 'webfantasy_uta';
+    $passwd = 'kiseki1537';
 
     // データーベースへの接続を確立
     $db = new PDO($dsn, $usr, $passwd, [PDO::ATTR_PERSISTENT => true]);
