@@ -9,7 +9,7 @@
 
 **【制作物】**
 
-[santango]: http://yuta-web.com/all_works/santango
+[santango]: http://yuta-web.com/all_works/santango/public
 [３単語][santango]
 
 **【概要】**
